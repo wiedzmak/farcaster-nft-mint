@@ -5,13 +5,12 @@
     <title>Farcaster PRO Mascot</title>
     <script src="https://unpkg.com/@thirdweb-dev/sdk@latest/dist/browser.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
- <style>
+    <style>
       body {
         font-family: sans-serif;
         text-align: center;
-        background: black;
+        background: #fefdf9;
         padding: 40px;
-        color: white;
       }
       button {
         padding: 12px 24px;
@@ -70,7 +69,9 @@
             return;
           }
 
-          const sdk = new thirdweb.ThirdwebSDK(signer);
+          const sdk = new thirdweb.ThirdwebSDK(signer, {
+            clientId: "f1332775351974d1699f8ebfbd34e7e4"
+          });
           contract = await sdk.getEditionDrop(contractAddress);
 
           status.innerText = "Wallet connected ✅";
