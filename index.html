@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Farcaster PRO Mascot</title>
+    <script src="https://unpkg.com/@thirdweb-dev/sdk@latest/dist/browser.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        background: #fefdf9;
+        padding: 40px;
+      }
+      button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        background-color: #8b5cf6;
+        color: white;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background-color: #aaa;
+      }
+      img {
+        border-radius: 20px;
+        margin-top: 20px;
+        max-width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Farcaster PRO Mascot</h1>
+    <img src="farcaster-nft.png" alt="NFT" />
+    <p>100 editions · 0.005 ETH · on Base</p>
+    <p id="status">Connect wallet to begin</p>
+    <button id="connectButton">Connect Wallet</button>
+    <button id="mintButton" disabled>Mint</button>
+
+    <script>
+      const contractAddress = "0x83d7a49C3fA5771FC83843d1fF1C783A947c12AF";
+      const tokenId = 0;
+      const quantity = 1;
+      const chainId = 8453; // Base mainnet
+
+      let signer, contract;
+
+      const status = document.getElementById("status");
+      const connectButton = document.getElementById("connectButton");
+      const mintButton = document.getElementById("mintButton");
+
+      connectButton.onclick = async () => {
+        if (typeof window.ethereum === "undefined") {
+          alert("Please install MetaMask!");
+          return;
+        }
+
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        const network = await provider.getNetwork();
+        if (network.chainId !== chainId) {
+          alert("Please switch to the Base network.");
+          return;
+        }
+
+        const sdk = new thirdweb.ThirdwebSDK(signer);
+        contract = await sdk.getEditionDrop(contractAddress);
+
+        status.innerText = "Wallet connected ✅";
+        mintButton.disabled = false;
+      };
+
+      mintButton.onclick = async () => {
+        try {
+          status.innerText = "Minting...";
+          await contract.claim(tokenId, quantity);
+          status.innerText = "Minted successfully! 🎉";
+        } catch (err) {
+          console.error(err);
+          status.innerText = "Mint failed. See console.";
+        }
+      };
+    </script>
+  </body>
+</html>
