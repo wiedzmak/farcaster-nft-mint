@@ -5,7 +5,7 @@
     <title>Farcaster PRO Mascot</title>
     <script src="https://unpkg.com/@thirdweb-dev/sdk@latest/dist/browser.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <style>
+ <style>
       body {
         font-family: sans-serif;
         text-align: center;
@@ -59,21 +59,26 @@
           return;
         }
 
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+        try {
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
 
-        const network = await provider.getNetwork();
-        if (network.chainId !== chainId) {
-          alert("Please switch to the Base network.");
-          return;
+          const network = await provider.getNetwork();
+          if (network.chainId !== chainId) {
+            alert("Please switch to the Base network.");
+            return;
+          }
+
+          const sdk = new thirdweb.ThirdwebSDK(signer);
+          contract = await sdk.getEditionDrop(contractAddress);
+
+          status.innerText = "Wallet connected ✅";
+          mintButton.disabled = false;
+        } catch (err) {
+          console.error("Connection error:", err);
+          status.innerText = "Connection failed. See console.";
         }
-
-        const sdk = new thirdweb.ThirdwebSDK(signer);
-        contract = await sdk.getEditionDrop(contractAddress);
-
-        status.innerText = "Wallet connected ✅";
-        mintButton.disabled = false;
       };
 
       mintButton.onclick = async () => {
@@ -82,8 +87,8 @@
           await contract.claim(tokenId, quantity);
           status.innerText = "Minted successfully! 🎉";
         } catch (err) {
-          console.error(err);
-          status.innerText = "Mint failed. See console.";
+          console.error("Minting error:", err);
+          status.innerText = "Mint failed. Check console for details.";
         }
       };
     </script>
